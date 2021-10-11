@@ -32,6 +32,7 @@ const SetUser = ({
       }
 
       if (!hasError) {
+        localStorage.setItem("users", `${user1}-${user2}`);
         setView(VIEWS.STEP_3);
         setCurrentUser(user1);
       }

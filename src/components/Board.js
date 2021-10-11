@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+
 const Board = ({ user, setUser }) => {
   return (
     <div className="text-center">

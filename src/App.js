@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { Container } from "react-bootstrap";
 import Board from "./components/Board";
 import UserTable from "./components/UserTable";
@@ -13,7 +13,18 @@ function App() {
   const [view, setView] = useState(VIEWS.STEP_1);
   const [error, setError] = useState("");
 
-  console.log(user);
+  useEffect(() => {
+    const userString = localStorage.getItem("users");
+
+    const [user1, user2] = userString.split("-");
+
+    if (user1 && user2) {
+      setView(VIEWS.STEP_3);
+      setUser1(user1);
+      setUser2(user2);
+      setUser(user1);
+    }
+  }, []);
 
   return (
     <>
