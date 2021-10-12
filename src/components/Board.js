@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import calculateWinner from "../helpers/calculateWinner";
 import "./Board.css";
 
 import HoverCircle from "./HoverCircle";
@@ -38,6 +39,7 @@ const Board = ({ user, setUser, user1, user2 }) => {
 
     if (updatedBoard.length) {
       setBoard(updatedBoard);
+      calculateWinner(board);
       if (user && user === user1) {
         setUser(user2);
       } else {

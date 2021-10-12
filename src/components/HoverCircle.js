@@ -1,11 +1,6 @@
 import "./HoverCircle.css";
 
 const HoverCircle = ({ row, pickCol, circleColor }) => {
-  const handleDragEnter = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-  };
-
   const handleDragOver = (e, col) => {
     e.preventDefault();
     e.stopPropagation();
