@@ -1,0 +1,31 @@
+.col-container {
+  position: relative;
+  width: 100%;                  
+  height: 80px;                 
+  overflow: hidden;               
+  background-color: #CCC;
+  align-items: center;
+  display: flex;
+  justify-content: center;
+
+}
+
+.circle {
+  position: relative;                                   
+  width: 50px;               
+  height: 50px;                 
+  background-color: transparent;
+  border-radius: 100px;          
+  border: 1px solid white;    
+  pointer-events: none; 
+  z-index: 10; 
+  
+}
+
+.hover-circle {
+  height: 150px;
+  background-color: bisque;
+}
+
+
+
