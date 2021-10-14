@@ -18,13 +18,26 @@ const server = http.createServer(app);
 //initialize the WebSocket server instance
 const wss = new WebSocket.Server({ server });
 
+let board = new Array(6).fill().map((_) => new Array(7).fill().map(() => 0));
+
+app.get("/api", (req, res) => {
+  res.send(board);
+});
+
 wss.on("connection", (ws) => {
   //connection is up, let's add a simple simple event
   ws.on("message", (message) => {
     //log the received message and send it back to the client
-    console.log("received: %s", message);
-    ws.send(`Hello, you sent -> ${message}`);
+    wss.clients.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(message?.toString());
+      }
+    });
+
+    // ws.send(JSON.stringify(message));
   });
+
+  ws.emit("message");
 
   //send immediatly a feedback to the incoming connection
   ws.send("message here!");

@@ -5,6 +5,7 @@ import UserTable from "./components/UserTable";
 import SetUser from "./components/SetUser";
 import VIEWS from "./helpers/views";
 import { w3cwebsocket as W3CWebSocket } from "websocket";
+import axios from "axios";
 
 const client = new W3CWebSocket("ws://127.0.0.1:3001");
 
@@ -23,11 +24,15 @@ function App() {
 
     setBoard(board);
   };
-  console.log(board);
 
   useEffect(() => {
-    setNewBoard();
-    const userString = localStorage.getItem("users");
+    axios
+      .get("/api")
+      .then((res) => setBoard(res.data))
+      .catch((err) => console.log(err));
+
+    // setNewBoard();
+    const userString = localStorage.getItem("users") || "";
 
     const [user1, user2] = userString.split("-");
 
@@ -43,8 +48,12 @@ function App() {
     };
 
     client.onmessage = (msg) => {
-      console.log("msg", msg);
+      console.log("msg1", msg);
+      const newBoard = JSON.parse(msg.data);
+      setBoard(newBoard);
     };
+
+    console.log(board);
 
     return () => {
       client.onclose = () => {

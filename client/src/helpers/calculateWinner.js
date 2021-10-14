@@ -1,5 +1,4 @@
 const calculateWinner = (array, row, col) => {
-  console.log(array, row, col, array[row][col]);
   let hasWon = false;
   hasWon =
     hasWon ||
