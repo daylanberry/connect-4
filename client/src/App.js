@@ -48,7 +48,6 @@ function App() {
     };
 
     client.onmessage = (msg) => {
-      console.log("msg1", msg);
       const newBoard = JSON.parse(msg.data);
       setBoard(newBoard);
     };
