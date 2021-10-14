@@ -1,19 +1,12 @@
 import { useEffect, useState } from "react";
+import { Button } from "react-bootstrap";
 import calculateWinner from "../helpers/calculateWinner";
 import "./Board.css";
 
 import HoverCircle from "./HoverCircle";
 
-const Board = ({ user, setUser, user1, user2 }) => {
-  const [board, setBoard] = useState([]);
-
-  useEffect(() => {
-    const board = new Array(6)
-      .fill()
-      .map((_) => new Array(7).fill().map(() => 0));
-
-    setBoard(board);
-  }, []);
+const Board = ({ user, setUser, user1, user2, client, board, setBoard }) => {
+  const [hasWon, setHasWon] = useState(false);
 
   const setBackground = (num) => {
     if (num === 0) return "white";
@@ -23,6 +16,7 @@ const Board = ({ user, setUser, user1, user2 }) => {
 
   const pickCol = (selectedCol) => {
     const updatedBoard = board.slice();
+    if (hasWon) return;
 
     let i = 0;
 
@@ -31,7 +25,9 @@ const Board = ({ user, setUser, user1, user2 }) => {
         (updatedBoard[i + 1] && updatedBoard[i + 1][selectedCol] > 0) ||
         i === updatedBoard.length - 1
       ) {
+        if (i === 0 && updatedBoard[i][selectedCol] > 0) return;
         updatedBoard[i][selectedCol] = user === user1 ? 1 : 2;
+
         break;
       }
       i++;
@@ -39,7 +35,10 @@ const Board = ({ user, setUser, user1, user2 }) => {
 
     if (updatedBoard.length) {
       setBoard(updatedBoard);
-      calculateWinner(board);
+      client.send(JSON.stringify(updatedBoard));
+      if (calculateWinner(board, i, selectedCol)) {
+        return setHasWon(true);
+      }
       if (user && user === user1) {
         setUser(user2);
       } else {
@@ -67,9 +66,37 @@ const Board = ({ user, setUser, user1, user2 }) => {
     );
   };
 
+  const setNewBoard = () => {
+    const board = new Array(6)
+      .fill()
+      .map((_) => new Array(7).fill().map(() => 0));
+
+    setBoard(board);
+  };
+
+  const renderCongrats = () => {
+    const reset = () => {
+      setNewBoard();
+      setHasWon(false);
+    };
+
+    return (
+      <>
+        <div className="mb-4">Congratulations {user}, you won!</div>
+        <Button variant="success" onClick={reset}>
+          Reset
+        </Button>
+      </>
+    );
+  };
+
   return (
     <div className="text-center">
-      <div className="mb-4">{user}: It's you're turn</div>
+      {hasWon ? (
+        renderCongrats()
+      ) : (
+        <div className="mb-4">{user}: It's you're turn</div>
+      )}
       <HoverCircle
         row={board[0] ? board[0].length : 7}
         circleColor={user === user1 ? setBackground(1) : setBackground(2)}
