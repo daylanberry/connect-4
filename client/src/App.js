@@ -6,8 +6,7 @@ import SetUser from "./components/SetUser";
 import VIEWS from "./helpers/views";
 import { w3cwebsocket as W3CWebSocket } from "websocket";
 import axios from "axios";
-
-const client = new W3CWebSocket("ws://127.0.0.1:3001");
+import io from "socket.io-client";
 
 function App() {
   const [user, setUser] = useState("");
@@ -16,6 +15,9 @@ function App() {
   const [view, setView] = useState(VIEWS.STEP_1);
   const [error, setError] = useState("");
   const [board, setBoard] = useState([]);
+  const [socket, setSocket] = useState(null);
+  const [userId, setUserId] = useState("");
+  console.log(process.env);
 
   const setNewBoard = () => {
     const board = new Array(6)
@@ -26,12 +28,7 @@ function App() {
   };
 
   useEffect(() => {
-    axios
-      .get("/api")
-      .then((res) => setBoard(res.data))
-      .catch((err) => console.log(err));
-
-    // setNewBoard();
+    setNewBoard();
     const userString = localStorage.getItem("users") || "";
 
     const [user1, user2] = userString.split("-");
@@ -41,25 +38,38 @@ function App() {
       setUser1(user1);
       setUser2(user2);
       setUser(user1);
+
+      if (socket) {
+        socket.emit("setUser", user1);
+      }
     }
 
-    client.onopen = () => {
-      console.log("WebSocket Connected");
-    };
+    const newSocket = io(`http://${window.location.hostname}:3001`);
+    setSocket(newSocket);
 
-    client.onmessage = (msg) => {
-      const newBoard = JSON.parse(msg.data);
-      setBoard(newBoard);
-    };
+    return () => newSocket.close();
+  }, [setSocket]);
 
-    console.log(board);
+  useEffect(() => {
+    if (socket) {
+      socket.emit("sendId");
 
-    return () => {
-      client.onclose = () => {
-        console.log("WebSocket Disconnected");
-      };
-    };
-  }, []);
+      socket.on("board", (board) => {
+        setBoard(JSON.parse(board));
+      });
+      socket.on("setUser", (user) => {
+        setUser(user);
+      });
+    }
+  }, [socket, setBoard, user]);
+
+  useEffect(() => {
+    if (socket) {
+      socket.on("setId", (id) => {
+        setUserId(id);
+      });
+    }
+  }, [user]);
 
   return (
     <>
@@ -85,9 +95,9 @@ function App() {
             setUser={setUser}
             user1={user1}
             user2={user2}
-            client={client}
             board={board}
             setBoard={setBoard}
+            socket={socket}
           />
         )}
       </Container>

@@ -5,7 +5,7 @@ import "./Board.css";
 
 import HoverCircle from "./HoverCircle";
 
-const Board = ({ user, setUser, user1, user2, client, board, setBoard }) => {
+const Board = ({ user, setUser, user1, user2, board, setBoard, socket }) => {
   const [hasWon, setHasWon] = useState(false);
 
   const setBackground = (num) => {
@@ -13,6 +13,15 @@ const Board = ({ user, setUser, user1, user2, client, board, setBoard }) => {
     if (num === 1) return "red";
     if (num === 2) return "blue";
   };
+
+  useEffect(() => {
+    if (socket) {
+      socket.on("hasWon", (currentUser) => {
+        setUser(currentUser);
+        setHasWon(true);
+      });
+    }
+  }, [socket]);
 
   const pickCol = (selectedCol) => {
     const updatedBoard = board.slice();
@@ -35,10 +44,12 @@ const Board = ({ user, setUser, user1, user2, client, board, setBoard }) => {
 
     if (updatedBoard.length) {
       setBoard(updatedBoard);
-      client.send(JSON.stringify(updatedBoard));
+      socket.emit("setBoard", JSON.stringify(updatedBoard));
       if (calculateWinner(board, i, selectedCol)) {
+        socket.emit("hasWon", user);
         return setHasWon(true);
       }
+      socket.emit("setUser", user && user === user1 ? user2 : user1);
       if (user && user === user1) {
         setUser(user2);
       } else {
