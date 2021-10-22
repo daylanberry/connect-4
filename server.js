@@ -18,10 +18,6 @@ app.get("*", (req, res) => {
   res.sendFile(path.resolve(__dirname, "../client/build", "index.html"));
 });
 
-app.get("/api", (req, res) => {
-  res.send("hello");
-});
-
 const server = http.createServer(app);
 const io = socketio(server, {
   cors: {

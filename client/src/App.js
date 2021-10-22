@@ -17,7 +17,6 @@ function App() {
   const [board, setBoard] = useState([]);
   const [socket, setSocket] = useState(null);
   const [userId, setUserId] = useState("");
-  console.log(process.env);
 
   const setNewBoard = () => {
     const board = new Array(6)
@@ -44,7 +43,11 @@ function App() {
       }
     }
 
-    const newSocket = io(`http://${window.location.hostname}:3001`);
+    const newSocket = io(
+      process.env.NODE_ENV === "production"
+        ? "https://connecter-4.herokuapp.com/"
+        : `http://${window.location.hostname}:3001`
+    );
     setSocket(newSocket);
 
     return () => newSocket.close();
