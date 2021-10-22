@@ -2,51 +2,36 @@ import { Form, Button, Alert } from "react-bootstrap";
 import VIEWS from "../helpers/views";
 
 const SetUser = ({
-  changeUser1,
-  changeUser2,
-  setCurrentUser,
+  setUser,
   view,
   setView,
-  user1,
-  user2,
   error,
   setError,
+  user,
+  setUser1,
+  socket,
 }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     let hasError = false;
-    console.log("clicked");
 
-    if (!user1.length) {
+    if (!user.length) {
       setError("You must enter you're name");
       hasError = true;
     }
 
-    if (view === VIEWS.STEP_1 && !hasError) {
-      setView(VIEWS.STEP_2);
-    }
-
-    if (view === VIEWS.STEP_2) {
-      if (!user2) {
-        hasError = true;
-      }
-
-      if (!hasError) {
-        localStorage.setItem("users", `${user1}-${user2}`);
-        setView(VIEWS.STEP_3);
-        setCurrentUser(user1);
-      }
+    if (view === VIEWS.STEP_2 && !hasError) {
+      setView(VIEWS.STEP_3);
+      setUser1(user);
+      socket.emit("setUser", user);
     }
   };
 
   return (
     <Form onSubmit={handleSubmit} className="w-50" style={{ margin: "auto" }}>
       <Form.Group className="mb-3" controlId="formBasicEmail">
-        <Form.Label>{view === "user1" ? "User 1" : "User 2"}</Form.Label>
-        <Form.Control
-          value={view === "user1" ? user1 : user2}
-          onChange={view === "user1" ? changeUser1 : changeUser2}
-        />
+        <Form.Label>Enter your username</Form.Label>
+        <Form.Control value={user} onChange={setUser} />
       </Form.Group>
       {error && <Alert variant="danger">{error}</Alert>}
 

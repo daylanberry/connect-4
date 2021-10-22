@@ -10,14 +10,15 @@ import axios from "axios";
 import io from "socket.io-client";
 
 function App() {
-  const [user, setUser] = useState("");
+  const [users, setUsers] = useState([]);
   const [user1, setUser1] = useState("");
   const [user2, setUser2] = useState("");
-  const [view, setView] = useState(VIEWS.STEP_0);
+  const [user, setUser] = useState("");
+  const [view, setView] = useState(VIEWS.STEP_1);
   const [error, setError] = useState("");
   const [board, setBoard] = useState([]);
   const [socket, setSocket] = useState(null);
-  const [room, setRoom] = useState(null);
+  const [room, setRoom] = useState("");
 
   const setNewBoard = () => {
     const board = new Array(6)
@@ -28,23 +29,19 @@ function App() {
   };
 
   useEffect(() => {
-    setNewBoard();
-    const userString = localStorage.getItem("users") || "";
+    if (socket) {
+      socket.on("joinRoom", (msg) => {
+        console.log("testing", msg);
+      });
 
-    const [user1, user2] = userString.split("-");
-
-    if (user1 && user2) {
-      if (room?.length) {
-        setView(VIEWS.STEP_3);
-      }
-      setUser1(user1);
-      setUser2(user2);
-      setUser(user1);
-
-      if (socket) {
-        socket.emit("setUser", user1);
-      }
+      socket.on("roomError", (msg) => {
+        console.log("error", msg);
+      });
     }
+  }, [socket]);
+
+  useEffect(() => {
+    setNewBoard();
 
     const newSocket = io(
       process.env.NODE_ENV === "production"
@@ -63,20 +60,22 @@ function App() {
       socket.on("board", (board) => {
         setBoard(JSON.parse(board));
       });
-      socket.on("setUser", (user) => {
-        setUser(user);
+      socket.on("setUser", (users) => {
+        setUsers(users);
+        setUser2(users.find(({ user }) => user !== user1).user || "");
       });
     }
   }, [socket, setBoard, user]);
 
-  if (view === VIEWS.STEP_0) {
+  if (view === VIEWS.STEP_1) {
     return (
       <JoinRoom
         error={error}
         setError={() => setError("You must join a room to continue")}
         room={room}
-        setView={(e) => setView(VIEWS.STEP_1)}
+        setView={(e) => setView(VIEWS.STEP_2)}
         setRoom={(e) => setRoom(e.target.value)}
+        socket={socket}
       />
     );
   }
@@ -87,24 +86,21 @@ function App() {
         <UserTable user1={user1} user2={user2} user={user} room={room} />
       )}
       <Container className="pt-5">
-        {view !== "started" ? (
+        {view === VIEWS.STEP_2 ? (
           <SetUser
-            changeUser1={(e) => view === "user1" && setUser1(e.target.value)}
-            changeUser2={(e) => view === "user2" && setUser2(e.target.value)}
-            user1={user1}
-            user2={user2}
+            setUser={(e) => setUser(e.target.value)}
+            setUser1={(user) => setUser1(user)}
+            user={user}
             view={view}
             setView={setView}
             error={error}
             setError={setError}
-            setCurrentUser={setUser}
+            socket={socket}
           />
         ) : (
           <Board
             user={user}
             setUser={setUser}
-            user1={user1}
-            user2={user2}
             board={board}
             setBoard={setBoard}
             socket={socket}

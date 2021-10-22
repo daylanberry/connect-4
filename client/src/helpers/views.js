@@ -1,7 +1,6 @@
 const VIEWS = {
-  STEP_0: "joinRoom",
-  STEP_1: "user1",
-  STEP_2: "user2",
+  STEP_1: "joinRoom",
+  STEP_2: "setUser",
   STEP_3: "started",
 };
 

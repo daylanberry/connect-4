@@ -1,6 +1,6 @@
 import { Form, Button, Alert } from "react-bootstrap";
 
-const JoinRoom = ({ room, setRoom, setError, error, setView }) => {
+const JoinRoom = ({ room, setRoom, setError, error, setView, socket }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -9,6 +9,7 @@ const JoinRoom = ({ room, setRoom, setError, error, setView }) => {
     }
 
     setView();
+    socket.emit("joinRoom", room);
   };
 
   return (
