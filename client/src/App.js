@@ -3,6 +3,7 @@ import { Container } from "react-bootstrap";
 import Board from "./components/Board";
 import UserTable from "./components/UserTable";
 import SetUser from "./components/SetUser";
+import JoinRoom from "./components/JoinRoom";
 import VIEWS from "./helpers/views";
 import { w3cwebsocket as W3CWebSocket } from "websocket";
 import axios from "axios";
@@ -12,11 +13,11 @@ function App() {
   const [user, setUser] = useState("");
   const [user1, setUser1] = useState("");
   const [user2, setUser2] = useState("");
-  const [view, setView] = useState(VIEWS.STEP_1);
+  const [view, setView] = useState(VIEWS.STEP_0);
   const [error, setError] = useState("");
   const [board, setBoard] = useState([]);
   const [socket, setSocket] = useState(null);
-  const [userId, setUserId] = useState("");
+  const [room, setRoom] = useState(null);
 
   const setNewBoard = () => {
     const board = new Array(6)
@@ -33,7 +34,9 @@ function App() {
     const [user1, user2] = userString.split("-");
 
     if (user1 && user2) {
-      setView(VIEWS.STEP_3);
+      if (room?.length) {
+        setView(VIEWS.STEP_3);
+      }
       setUser1(user1);
       setUser2(user2);
       setUser(user1);
@@ -66,18 +69,22 @@ function App() {
     }
   }, [socket, setBoard, user]);
 
-  useEffect(() => {
-    if (socket) {
-      socket.on("setId", (id) => {
-        setUserId(id);
-      });
-    }
-  }, [user]);
+  if (view === VIEWS.STEP_0) {
+    return (
+      <JoinRoom
+        error={error}
+        setError={() => setError("You must join a room to continue")}
+        room={room}
+        setView={(e) => setView(VIEWS.STEP_1)}
+        setRoom={(e) => setRoom(e.target.value)}
+      />
+    );
+  }
 
   return (
     <>
       {view === VIEWS.STEP_3 && (
-        <UserTable user1={user1} user2={user2} user={user} />
+        <UserTable user1={user1} user2={user2} user={user} room={room} />
       )}
       <Container className="pt-5">
         {view !== "started" ? (

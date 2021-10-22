@@ -11,6 +11,7 @@ class Connection {
     this.io = io;
     this.id = socket.id;
 
+    socket.on("joinRoom", (room) => this.joinRoom(room));
     socket.on("setUser", (user) => this.setUser(user));
     socket.on("setBoard", (value) => this.setBoard(value));
     socket.on("hasWon", () => this.sendHasWonMessage());
@@ -19,6 +20,11 @@ class Connection {
     socket.on("connect_error", (err) => {
       console.log(`connect_error due to ${err.message}`);
     });
+  }
+
+  joinRoom(room) {
+    console.log(this.socket.join);
+    this.socket.join("some room");
   }
 
   sendId() {
