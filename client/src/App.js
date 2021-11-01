@@ -29,6 +29,20 @@ function App() {
   };
 
   useEffect(() => {
+    const userToSet = users.filter(({ user }) => user !== user1);
+
+    if (userToSet?.length && userToSet[0].user) {
+      setUser2(userToSet[0].user);
+
+      if (users?.length === 2) {
+        const currentUser = users[0].user;
+        setUser(currentUser);
+        socket.emit("setCurrentUser", currentUser);
+      }
+    }
+  }, [users]);
+
+  useEffect(() => {
     if (socket) {
       socket.on("joinRoom", (msg) => {
         console.log("testing", msg);
@@ -36,6 +50,10 @@ function App() {
 
       socket.on("roomError", (msg) => {
         console.log("error", msg);
+      });
+
+      socket.on("setCurrentUser", (currentUser) => {
+        console.log("user!", currentUser);
       });
     }
   }, [socket]);
@@ -62,7 +80,6 @@ function App() {
       });
       socket.on("setUser", (users) => {
         setUsers(users);
-        setUser2(users.find(({ user }) => user !== user1).user || "");
       });
     }
   }, [socket, setBoard, user]);
@@ -99,7 +116,9 @@ function App() {
           />
         ) : (
           <Board
+            users={users}
             user={user}
+            user1={user1}
             setUser={setUser}
             board={board}
             setBoard={setBoard}

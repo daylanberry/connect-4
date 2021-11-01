@@ -1,5 +1,5 @@
-const uuidv4 = require("uuid").v4;
 let users = [];
+let currentUser = "";
 
 let board = new Array(6).fill().map((_) => new Array(7).fill().map(() => 0));
 let currentRoom = "";
@@ -12,6 +12,7 @@ class Connection {
     this.io = io;
     this.id = socket.id;
 
+    socket.on("setCurrentUser", (user) => this.setCurrentUser(user));
     socket.on("joinRoom", (room) => this.joinRoom(room));
     socket.on("setUser", (user) => this.setUser(user));
     socket.on("setBoard", (value) => this.setBoard(value));
@@ -20,6 +21,11 @@ class Connection {
     socket.on("connect_error", (err) => {
       console.log(`connect_error due to ${err.message}`);
     });
+  }
+
+  setCurrentUser(user) {
+    currentUser = user;
+    this.io.sockets.to(currentRoom).emit("setCurrentUser", currentUser);
   }
 
   joinRoom(room) {
@@ -37,7 +43,7 @@ class Connection {
 
     console.log(users);
 
-    if (users.length < 2) {
+    if (users.length <= 1) {
       users.push({ id, user });
       this.io.sockets.to(currentRoom).emit("setUser", users);
     } else {

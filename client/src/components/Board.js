@@ -5,7 +5,16 @@ import "./Board.css";
 
 import HoverCircle from "./HoverCircle";
 
-const Board = ({ user, setUser, user1, user2, board, setBoard, socket }) => {
+const Board = ({
+  users,
+  user,
+  setUser,
+  user1,
+  user2,
+  board,
+  setBoard,
+  socket,
+}) => {
   const [hasWon, setHasWon] = useState(false);
 
   const setBackground = (num) => {
@@ -28,6 +37,10 @@ const Board = ({ user, setUser, user1, user2, board, setBoard, socket }) => {
     if (hasWon) return;
 
     let i = 0;
+    if (user !== user1) {
+      alert("It's not your turn yet");
+      return;
+    }
 
     while (updatedBoard[i]) {
       if (
@@ -49,11 +62,12 @@ const Board = ({ user, setUser, user1, user2, board, setBoard, socket }) => {
         socket.emit("hasWon", user);
         return setHasWon(true);
       }
-      socket.emit("setUser", user && user === user1 ? user2 : user1);
-      if (user && user === user1) {
+
+      if (user) {
+        const userToSet = users.filter((user) => user.user !== user);
+        console.log("user to set", userToSet);
+        socket.emit("setCurrentUser", user2);
         setUser(user2);
-      } else {
-        setUser(user1);
       }
     }
   };
