@@ -54,6 +54,7 @@ function App() {
 
       socket.on("setCurrentUser", (currentUser) => {
         console.log("user!", currentUser);
+        setUser(currentUser);
       });
     }
   }, [socket]);

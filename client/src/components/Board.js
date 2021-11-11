@@ -16,6 +16,7 @@ const Board = ({
   socket,
 }) => {
   const [hasWon, setHasWon] = useState(false);
+  const currentColor = users?.length && users[0].user === user1 ? 1 : 2;
 
   const setBackground = (num) => {
     if (num === 0) return "white";
@@ -48,7 +49,8 @@ const Board = ({
         i === updatedBoard.length - 1
       ) {
         if (i === 0 && updatedBoard[i][selectedCol] > 0) return;
-        updatedBoard[i][selectedCol] = user === user1 ? 1 : 2;
+
+        updatedBoard[i][selectedCol] = currentColor;
 
         break;
       }
@@ -64,10 +66,8 @@ const Board = ({
       }
 
       if (user) {
-        const userToSet = users.filter((user) => user.user !== user);
-        console.log("user to set", userToSet);
-        socket.emit("setCurrentUser", user2);
-        setUser(user2);
+        const userToSet = users.filter(({ user: u }) => u !== user)[0].user;
+        socket.emit("setCurrentUser", userToSet);
       }
     }
   };
@@ -120,11 +120,13 @@ const Board = ({
       {hasWon ? (
         renderCongrats()
       ) : (
-        <div className="mb-4">{user}: It's you're turn</div>
+        <div className="mb-4">
+          {user === user1 ? "It's your turn" : `It's ${user}'s turn`}
+        </div>
       )}
       <HoverCircle
         row={board[0] ? board[0].length : 7}
-        circleColor={user === user1 ? setBackground(1) : setBackground(2)}
+        circleColor={setBackground(currentColor)}
         pickCol={pickCol}
       />
       {createBoard()}

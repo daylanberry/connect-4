@@ -25,6 +25,7 @@ class Connection {
 
   setCurrentUser(user) {
     currentUser = user;
+    console.log("sending " + user);
     this.io.sockets.to(currentRoom).emit("setCurrentUser", currentUser);
   }
 
@@ -40,8 +41,6 @@ class Connection {
 
   setUser(user) {
     const id = this.socket.id;
-
-    console.log(users);
 
     if (users.length <= 1) {
       users.push({ id, user });

@@ -23,7 +23,7 @@ const SetUser = ({
     if (view === VIEWS.STEP_2 && !hasError) {
       setView(VIEWS.STEP_3);
       setUser1(user);
-      socket.emit("setUser", user);
+      socket.emit("setUsers", user);
     }
   };
 
